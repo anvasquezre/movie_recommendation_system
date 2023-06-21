@@ -36,7 +36,7 @@ def create_mlp_model(input_shape: Tuple[int, int, int], num_classes: int) -> Seq
     model.add(Input(shape=input_shape))
 
     # Layer 0: Rescaling operation to map image pixels from [0, 255] to [0, 1] range
-    model.add(Rescaling(1.0 / 255, input_shape=input_shape))
+    model.add(Rescaling(1.0 / 255))
 
     # Layer 1: Flatten layer to convert the 3D input image to a 1D array
     model.add(Flatten())
