@@ -5,6 +5,7 @@ import gdown
 import pandas as pd
 
 from src import config
+from sklearn.model_selection import train_test_split
 
 
 def get_datasets() -> Tuple[pd.DataFrame, pd.DataFrame]:
@@ -60,5 +61,9 @@ def split_data(
         y_test : pd.Series
             List labels for test
     """
-    # TODO
-
+    X_train, y_train = train["review"], train["positive"]
+    X_test, y_test = test["review"], test["positive"]
+    
+    
+    
+    return X_train, y_train, X_test, y_test
