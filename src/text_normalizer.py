@@ -20,7 +20,7 @@ subprocess.run(["spacy", "download", "en_core_web_sm"])
 tokenizer = ToktokTokenizer()
 nlp = spacy.load("en_core_web_sm")
 stopword_list = nltk.corpus.stopwords.words("english")
-
+porter = nltk.stem.PorterStemmer()
 
 def remove_html_tags(text: str) -> str:
     """
@@ -34,8 +34,14 @@ def remove_html_tags(text: str) -> str:
         str
             Output string.
     """
-    # TODO
-    raise NotImplementedError
+    
+    # Parse the html in the 'text' variable, and store it in Beautiful Soup format  
+    soup = BeautifulSoup(text, "html.parser")
+    # get text
+    doc = soup.get_text()
+    # return data by retrieving the text content
+    return doc
+
 
 
 def stem_text(text: str) -> str:
@@ -53,8 +59,17 @@ def stem_text(text: str) -> str:
         str
             Output string.
     """
-    # TODO
-    raise NotImplementedError
+    
+    # tokenize the sentence
+    tokens = word_tokenize(text)
+    
+    # stem the tokens
+    # create an empty list to store the stems
+    stems = [porter.stem(word) for word in tokens]
+    # join the stems
+    doc = " ".join(stems) 
+    return doc
+
 
 
 def lemmatize_text(text: str) -> str:
@@ -71,9 +86,10 @@ def lemmatize_text(text: str) -> str:
         str
             Output string.
     """
-    # TODO
-    raise NotImplementedError
-
+    doc = nlp(text)
+    empty_list = [token.lemma_ for token in doc]
+    final_string = " ".join(map(str,empty_list))
+    return final_string
 
 def remove_accented_chars(text: str) -> str:
     """
@@ -87,8 +103,10 @@ def remove_accented_chars(text: str) -> str:
         str
             Output string.
     """
-    # TODO
-    raise NotImplementedError
+    doc = ''.join(c for c in unicodedata.normalize('NFKD', text)
+                  if unicodedata.category(c) != 'Mn'
+                  )
+    return doc
 
 
 def remove_special_chars(text: str, remove_digits: Optional[bool] = False) -> str:
@@ -105,8 +123,12 @@ def remove_special_chars(text: str, remove_digits: Optional[bool] = False) -> st
         str
             Output string.
     """
-    # TODO
-    raise NotImplementedError
+    if remove_digits:
+        pattern = "[^a-zA-z\s]+"
+    else:
+        pattern = "[^a-zA-Z0-9\s]+"
+    filtered_doc = re.sub(pattern, '',text)   
+    return filtered_doc
 
 
 def remove_stopwords(
@@ -131,9 +153,18 @@ def remove_stopwords(
         str
             Output string.
     """
-    # TODO
-    raise NotImplementedError
+    toktok = ToktokTokenizer()
 
+    tokens = toktok.tokenize(text)
+    
+    if not is_lower_case:
+        tokens = [token.lower() for token in tokens]
+    
+    tokens_cleaned = [token for token in tokens if token not in stopwords]
+    
+
+    doc = " ".join(map(str,tokens_cleaned))
+    return doc
 
 def remove_extra_new_lines(text: str) -> str:
     """
@@ -147,8 +178,10 @@ def remove_extra_new_lines(text: str) -> str:
         str
             Output string.
     """
-    # TODO
-    raise NotImplementedError
+    # Remove extra tabs and lines
+    processed_string = re.sub(r'\n+|\t+', ' ', text)
+    
+    return processed_string
 
 
 def remove_extra_whitespace(text: str) -> str:
@@ -163,8 +196,8 @@ def remove_extra_whitespace(text: str) -> str:
         str
             Output string.
     """
-    # TODO
-    raise NotImplementedError
+    processed_string = re.sub(r'\s+', ' ', text)
+    return processed_string
 
 
 def expand_contractions(text, contraction_mapping=CONTRACTION_MAP) -> str:
@@ -207,7 +240,7 @@ def normalize_corpus(
     accented_char_removal: Optional[bool] = True,
     text_lower_case: Optional[bool] = True,
     text_stemming: Optional[bool] = False,
-    text_lemmatization: Optional[bool] = False,
+    text_lemmatization: Optional[bool] = True,
     special_char_removal: Optional[bool] = True,
     remove_digits: Optional[bool] = True,
     stopword_removal: Optional[bool] = True,
